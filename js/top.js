@@ -1,5 +1,6 @@
 // ページネーションを使えるようにする
 Vue.component('paginate', VuejsPaginate);
+// モーダルウィンドウ表示
 Vue.use(window["vue-js-modal"].default);
 
 var vm = new Vue({
@@ -196,10 +197,12 @@ var vm = new Vue({
             const url = "https://authtest-67ba4.web.app/#/signin"
             window.open(url, '_blank', 'width=1024,height=768,scrollbars=yes,resizable=yes')
         },
+        // チーム開発（別ウィンドウ）
         openWindowTD: function() {
             const url = "repo/index.html"
             window.open(url, '_blank', 'scrollbars=no,resizable=no')
         },
+        // チーム開発（モーダル）
         showTD: function() {
             this.$modal.show('modal-area');
         },
