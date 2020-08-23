@@ -197,7 +197,7 @@ var vm = new Vue({
             window.open(url, '_blank', 'width=1024,height=768,scrollbars=yes,resizable=yes')
         },
         openWindowTD: function() {
-            const url = "repo/index2.html"
+            const url = "repo/index.html"
             window.open(url, '_blank', 'width=1000,height=800,scrollbars=no,resizable=no')
         },
         showTD: function() {
