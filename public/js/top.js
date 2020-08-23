@@ -198,7 +198,7 @@ var vm = new Vue({
         },
         openWindowTD: function() {
             const url = "repo/index.html"
-            window.open(url, '_blank', scrollbars=no,resizable=no')
+            window.open(url, '_blank', 'scrollbars=no,resizable=no')
         },
         showTD: function() {
             this.$modal.show('modal-area');
