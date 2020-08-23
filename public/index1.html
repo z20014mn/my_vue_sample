@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>YouTuber Search</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css"
+            integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/top.css" />
+    <link rel="stylesheet" type="text/css" href="css/TD.css" />
+</head>
+
+<body>
+    <div id="app" class="container">
+        <div style="text-align: right;">
+            <button class="btn btn-secondary" style="width: 140px;" a hlef="#" v-on:click.stop.prevent="openWindow">チャットルーム</button>
+            <button class="btn btn-secondary" style="width: 140px;" v-on:click="downloadCSV">CSV出力</button>
+            <!-- <button class="btn btn-secondary" style="width: 140px;" v-on:click.stop.prevent="openWindowTD">チーム開発</button> -->
+            <button class="btn btn-secondary" style="width: 140px;" v-on:click.stop.prevent="openWindowTD">チーム開発</button>
+        </div>
+        <div id="activity-log">
+            <div style="text-align: center; margin-top: 20px;"><img src="img/logo.png" alt="YouTuber検索" width="400"></div>
+            <div class="col-lg" style="text-align: center;">
+                <input type="text" v-model="apiKey" placeholder="APIキーを入力" style="width: 30%;height: 35px;margin-bottom: 10px;" />
+                <br>
+                <input type="text" v-model="params.channel.q" style="width: 30%; height: 35px;margin-bottom: 10px;" />
+                <div style="margin-bottom: 10px;">
+                    ソート
+                    <select v-model="sort.key" id="sortKey" style="height: 35px;">
+                        <option value="subscriberCount">登録者数</option>
+                        <option value="viewCount">総再生回数</option>
+                        <option value="videoCount">動画投稿本数</option>
+                        <option value="publishedAt">チャンネル開設日</option>
+                    </select>
+                    <select v-model="sort.order" id="sortOrder" style="height: 35px;">
+                        <option value="asc">昇順</option>
+                        <option value="desc">降順</option>
+                    </select>
+                    <button v-on:click="searchChannels" class="btn btn-danger mr-2" style="width: 100px;">検索</button>
+                    <button v-on:click="omikujiSearch" class="btn btn-danger mr-2" style="width: 100px;">おみくじ</button>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    フィルタ
+                    <select v-model="filter.key" id="filterKey" style="height: 35px;">
+                        <option value="none">-</option>
+                        <option value="subscriberCount">登録者数</option>
+                        <option value="viewCount">総再生回数</option>
+                        <option value="videoCount">動画投稿本数</option>
+                    </select>
+                    <input type="number" v-model.number="filter.value" style="height: 35px;"/>
+                    <select v-model="filter.order" id="filterOrder" style="height: 35px;">
+                        <option value="more">以上</option>
+                        <option value="less">以下</option>
+                    </select>
+                </div>
+                <button v-on:click="searchChannels" class="btn btn-danger mr-2" style="width: 100px;">検索</button>
+                <br><br>
+            </div>
+            <div>
+                <p v-show="rowCounts">総ヒット件数（最大50件取得）: {{ totalResults }}件中、 フィルター後の{{ rowCounts }}件を表示</p>
+                <table class="table sticky_table" style="table-layout: fixed; word-wrap: break-word;">
+                    <thead class="thead-light">
+                        <tr style="text-align: center;">
+                            <th style="width: 10%;">画像</th>
+                            <th style="width: 13%;">チャンネル名</th>
+                            <th style="width: 10%;">登録者数</th>
+                            <th style="width: 12%;">再生回数</th>
+                            <th style="width: 9%;">投稿本数</th>
+                            <th style="width: 27%;">チャンネル内容</th>
+                            <th style="width: 14%">開設日</th>
+                            <th style="width: 5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody v-show="processedResults">
+                        <tr v-for="channel in processedResults">
+                            <td>
+                                <a v-bind:href="'https://www.youtube.com/channel/' + channel.id" target="_blank">
+                                    <img width="88" height="88" v-bind:src="channel.snippet.thumbnails.default.url">
+                                </a>
+                            </td>
+                            <td>{{ channel.snippet.title }}</td>
+                            <td>{{ channel.statistics.subscriberCount }}</td>
+                            <td>{{ channel.statistics.viewCount }}</td>
+                            <td>{{ channel.statistics.videoCount }}</td>
+                            <td>
+                                <span class="desc">
+                                    {{ channel.snippet.description }}
+                                </span>
+                            </td>
+                            <td>{{ channel.snippet.publishedAt | datetimeConvert }}</td>
+                            <td>
+                                <a v-bind:href="'https://www.google.com/search?q=' + channel.snippet.title"
+                                    target="_blank"><i class="fab fa-google fa-2x"></i></a><br>
+                                <a v-bind:href="'https://www.amazon.co.jp/s?k=' + channel.snippet.title"
+                                    target="_blank"><i class="fab fa-amazon fa-2x"></i></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <paginate
+                  v-show="processedResults"
+                  :page-count="getPageCount"
+                  :page-range="3"
+                  :margin-pages="2"
+                  :click-handler="clickCallback"
+                  :prev-text="'<'"
+                  :next-text="'>'"
+                  :container-class="'pagination'">
+                </paginate>
+            </div>
+        </div>
+
+
+        <modal name="modal-area" :width="1000" :height="750">
+            <div class="modal-area-inner">
+                <carousel per-page="1">
+                    <slide>
+                        <h2>チーム開発</h2><br>
+                        <!-- <span class="label"> -->
+                            ＜コンセプト＞<br>
+                            フロントエンド開発<br>
+                            未経験の技術・ツールにチャレンジ<br><br>
+                            ＜ルール＞<br>
+                            チケット駆動開発<br>
+                            GitHub Flowの実践<br>
+                            Slackで情報連携<br>
+                        <!-- </span> -->
+                    </slide>
+            
+                    <slide>
+                        <h2>アーキテクチャ</h2><br>
+                        <!-- <span class="label"> -->
+                            <img src="repo/archi.png" width="800">
+                        <!-- </span> -->
+                    </slide>
+            
+                    <slide>
+                        <h2>コミット</h2><br>
+                        <!-- <span class="label"> -->
+                            <img src="repo/github_commit.PNG" width="800">
+                        <!-- </span> -->
+                    </slide>
+            
+                    <slide>
+                        <h2>軌跡</h2><br>
+                        <img src="repo/kiseki.png" width="600">
+                        <!-- <span class="label"> -->
+                            <!-- <ul>
+                            <li>7/22　何で作るか…Vue.js</li>
+                            <li>7/24　何を作るか…YouTuber検索</li>
+                            <li>7/31　ファーストコミット</li>
+                            <li>8/16　休日作業（共同レビュー、今後の方針確認）</li>
+                            <li>8/19　開発演習（KPT）</li>
+                            <li>8/21　開発演習（デモ）</li>
+                            <li>8/22　休日作業（コンフリクト解消、デバッグ）</li>
+                            <li>8/26　開発演習（開発最終日・デモ準備）</li>
+                            <li>8/28　成果発表</li>
+                            </ul> -->
+                        <!-- </span> -->
+                    </slide>
+                    <slide>
+                        <h2>まとめ</h2><br>
+                        <!-- <span class="label"> -->
+                            各自が興味ある分野を積極的に学んだ<br>
+                            成果を共有してチームに貢献できた<br>
+                            対面時以上に言葉づかいに気を付けた<br>
+                            よい雰囲気でコミュニケーションもスムーズに<br>
+                            新しい技術のエッセンスをメンバー全員が体験<br>
+                            Vueの熟練者がいなかった分、協力して開発できた<br>
+                            ツールを絞ってプロジェクトをコンパクトに運用<br>
+                            最後まで開発を楽しめた！<br>
+                        <!-- </span> -->
+                    </slide>
+                </carousel>
+            </div>
+        </modal>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vuejs-paginate@latest"></script>
+
+    <script src="https://ssense.github.io/vue-carousel/js/vue-carousel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-js-modal@1.3.28/dist/index.min.js"></script>
+  
+    <script src="js/top.js"></script>
+</body>
+
+</html>

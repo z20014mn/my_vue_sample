@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>チーム開発</title>
+  <style>
+    .VueCarousel-slide {
+      position: relative;
+      background: white;
+      color:black;
+      font-family: Arial;
+      font-size: 24px;
+      text-align: center;
+      min-height: 600px;
+    }
+    .label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .modal-area-inner{
+      padding: 10px;
+      box-sizing: border-box;
+      position: relative;
+    }
+    .modal-area-inner .hide{
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 12px;
+    }
+
+    h2 {
+      font-size: 30px;
+      color: red;
+    }
+
+    li {
+      color: black;
+      font-size: 20px;
+      text-align: left;
+    }
+    </style>
+</head>
+
+<body>
+  <div id="app">
+
+    <button class="button" v-on:click="show">モーダルウィンドウを表示</button>
+    <modal name="modal-area" :width="1000" :height="700">
+      <div class="modal-area-inner">
+
+    <carousel per-page="1">
+
+      <slide>
+        <span class="label">
+          <h2>チーム開発</h2>
+          ＜コンセプト＞<br>
+            フロントエンド開発<br>
+            未経験の技術・ツールにチャレンジ<br><br>
+          ＜ルール＞<br>
+            チケット駆動開発<br>
+            GitHub Flowの実践<br>
+            Slackで情報連携<br>
+        </span>
+      </slide>
+
+      <slide>
+        <span class="label">
+          <h2>アーキテクチャ</h2>
+          <img src="archi.png" width="800">
+        </span>
+      </slide>
+
+      <slide>
+        <span class="label">
+          <h2>コミット</h2>
+	  			<img src="github_commit.PNG" width="800">
+        </span>
+      </slide>
+
+      <slide>
+        <span class="label">
+          <h2>軌跡</h2>
+	  			<img src="kiseki.png" width="600">
+          <!-- <ul>
+            <li>7/22　何で作るか…Vue.js</li>
+            <li>7/24　何を作るか…YouTuber検索</li>
+            <li>7/31　ファーストコミット</li>
+            <li>8/16　休日作業（共同レビュー、今後の方針確認）</li>
+            <li>8/19　開発演習（KPT）</li>
+            <li>8/21　開発演習（デモ）</li>
+            <li>8/22　休日作業（コンフリクト解消、デバッグ）</li>
+            <li>8/26　開発演習（開発最終日・デモ準備）</li>
+            <li>8/28　成果発表</li>
+          </ul> -->
+        </span>
+      </slide>
+      <slide>
+        <span class="label">
+          <h2>まとめ</h2>
+          <ul>
+            <li>各自が興味ある分野を積極的に学んだ</li>
+            <li>成果を共有してチームに貢献できた</li>
+            <li>対面時以上に言葉づかいに気を付けた</li>
+            <li>よい雰囲気でコミュニケーションもスムーズに</li>
+            <li>新しい技術のエッセンスをメンバー全員が体験
+            <li>Vueの熟練者がいなかった分、協力して開発できた</li>
+            <li>ツールを絞ってプロジェクトをコンパクトに運用</li>
+            <li>最後まで開発を楽しめた！</li>
+          </ul>
+        </span>
+      </slide>
+   </carousel>
+
+  </div>
+</modal>
+
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script> -->
+  <script src="https://ssense.github.io/vue-carousel/js/vue-carousel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-js-modal@1.3.28/dist/index.min.js"></script>
+
+  <script id="rendered-js">
+    Vue.use(window["vue-js-modal"].default);
+    var app = new Vue({
+      el: "#app",
+      components: {
+        'carousel': VueCarousel.Carousel,
+        'slide': VueCarousel.Slide
+      },
+
+      methods: {
+        show: function() {
+          this.$modal.show('modal-area');
+        },
+        // hide: function() {
+        //   this.$modal.hide('modal-area');
+        // },
+      },
+    });
+  </script>
+<!-- https://masatoshihanai.com/vue-carousel/ -->
+</body>
+</html>
